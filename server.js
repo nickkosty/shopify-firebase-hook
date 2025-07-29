@@ -15,7 +15,7 @@ const serviceAccount = {
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://your-project-id.firebaseio.com' // ← replace this
+  databaseURL: 'https://shopify-counter-688ee-default-rtdb.firebaseio.com'
 });
 
 const db = admin.database();
