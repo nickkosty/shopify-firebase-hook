@@ -37,7 +37,7 @@ admin.initializeApp({
 const db = admin.database();
 
 // Webhook endpoint
-app.post('/webhook', (req, res) => {
+app.post('/webhook', async (req, res) => {
   const order = req.body;
 
   const filteredData = {
@@ -66,12 +66,20 @@ app.post('/webhook', (req, res) => {
 
   console.log('✅ Order received:', filteredData);
 
-  db.ref('shopify/orders').push(filteredData)
-    .then(() => res.status(200).send('OK'))
-    .catch(err => {
-      console.error('❌ Firebase error:', err);
-      res.status(500).send('Error');
+  try {
+    // Push order
+    await db.ref('shopify/orders').push(filteredData);
+
+    // Atomically increment orderCount
+    await db.ref('shopify/orderCount').transaction(current => {
+      return (current || 0) + 1;
     });
+
+    res.status(200).send('OK');
+  } catch (err) {
+    console.error('❌ Firebase error:', err);
+    res.status(500).send('Error');
+  }
 });
 
 // Start server
